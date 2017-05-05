@@ -121,8 +121,10 @@ def map(requests, stream=False, size=None, exception_handler=None, gtimeout=None
     for request in requests:
         if request.response is not None:
             ret.append(request.response)
-        elif exception_handler:
-            ret.append(exception_handler(request))
+        elif exception_handler and hasattr(request, 'exception'):
+            ret.append(exception_handler(request, request.exception))
+        elif exception_handler and not hasattr(request, 'exception'):
+            ret.append(exception_handler(request, None))
         else:
             ret.append(None)
 
@@ -148,6 +150,6 @@ def imap(requests, stream=False, size=2, exception_handler=None):
         if request.response is not None:
             yield request.response
         elif exception_handler:
-            exception_handler(request)
+            exception_handler(request, request.exception)
 
     pool.join()

@@ -33,8 +33,9 @@ class Scheduler():
         while True:
             print('Testing Temporary')
             try:
+                time.sleep(cycle / 2)
                 self.tester.test_temporary()
-                time.sleep(cycle)
+                time.sleep(cycle / 2)
             except Exception as e:
                 print(e.args)
 

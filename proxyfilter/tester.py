@@ -11,18 +11,21 @@ class ValidTester():
         self.conn_formal = RedisClient(type='formal')
         self.conn_temporary = RedisClient(type='temporary')
     
-    def exception(self, request):
+    def exception(self, request, exception):
         proxies = request.kwargs.get('proxies')
         scheme = list(proxies.keys())[0]
         proxy = proxies.get(scheme).replace(scheme + '://', '')
         print('Get Exception of', scheme, proxy, 'Delete it')
         self.conn_temporary.remove(scheme, proxy)
+        self.conn_formal.remove(scheme, proxy)
 
     def test_temporary(self):
         keys = self.conn_temporary.keys()
+        print(keys)
         for key in keys:
             scheme = key.decode('utf-8').split(':')[2]
             queue = []
+            print(scheme)
             proxies = self.conn_temporary.all(scheme)
             for proxy in proxies:
                 proxy = proxy.decode('utf-8').strip()
@@ -44,7 +47,6 @@ class ValidTester():
                         else:
                             print('Temporary Tester: Valid Proxy', scheme, proxy, 'Add it to Formal Pool')
                             self.conn_formal.add(scheme, proxy)
-                            self.conn_temporary.remove(scheme, proxy)
                     else:
                         proxy = parse_qs(response.request.body).get('proxy')[0]
                         print('Temporary Tester: Status Code Not Valid, Invalid Proxy', proxy, 'Delete', scheme, proxy)
@@ -52,7 +54,6 @@ class ValidTester():
 
     def test_formal(self):
         keys = self.conn_formal.keys()
-        print(keys)
         for key in keys:
             scheme = key.decode('utf-8').split(':')[2]
             queue = []

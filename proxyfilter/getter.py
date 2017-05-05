@@ -35,7 +35,7 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
         except ConnectionError:
             print('Crawling Failed', url)
 
-    def crawl_daili66(self, page_count=4):
+    def crawl_daili66(self, page_count=10):
         start_url = 'http://www.66ip.cn/{}.html'
         urls = [start_url.format(page) for page in range(1, page_count + 1)]
         for url in urls:
@@ -67,7 +67,7 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
                     'proxy': ':'.join([ip, port])
                 }
 
-    def crawl_goubanjia(self, page_count=5):
+    def crawl_goubanjia(self, page_count=10):
         start_url = 'http://www.goubanjia.com/free/gngn/index{}.shtml'
         urls = [start_url.format(page) for page in range(1, page_count + 1)]
         for url in urls:
@@ -90,15 +90,10 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
 
     def run(self):
         functions = self.__CrawlFunc__
-        print(functions)
         for function in functions:
-            results = eval('getter.' + function + '()')
-            print(results)
+            results = eval('self.' + function + '()')
             for result in results:
                 print('Getting Proxy', result)
                 self.conn.add(result.get('scheme'), result.get('proxy'))
 
 
-if __name__ == '__main__':
-    getter = ProxyGetter()
-    getter.run()

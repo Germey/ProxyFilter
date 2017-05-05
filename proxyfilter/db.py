@@ -49,7 +49,6 @@ class RedisClient(object):
         :param proxy:
         :return:
         """
-        print(self._key(scheme))
         return self._db.srem(self._key(scheme), proxy)
 
     def flush(self):

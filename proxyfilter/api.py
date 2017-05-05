@@ -13,7 +13,7 @@ def get_conn():
     current application context.
     """
     if not hasattr(g, 'redis_client'):
-        g.redis_client = RedisClient()
+        g.redis_client = RedisClient(type='formal')
     return g.redis_client
 
 
