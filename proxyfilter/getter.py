@@ -23,7 +23,7 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
             'Accept-Encoding': 'gzip, deflate, sdch',
             'Accept-Language': 'zh-CN,zh;q=0.8'
         }
-        self.conn = RedisClient(type='temporary')
+        self.conn = RedisClient()
 
     def get_page(self, url, options={}):
         headers = dict(self.base_headers, **options)

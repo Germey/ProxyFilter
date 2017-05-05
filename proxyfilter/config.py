@@ -8,19 +8,20 @@ PASSWORD = 'foobared'
 
 TEST_URL = 'http://httpbin.org/post'
 
-TYPE = 'formal'
+CYCLE = 40
 
-CYCLE = 120
+GET_PROXY_PROCESS = True
 
-GET_PROXY_PROCESS = False
-
-TEST_TEMPORARY_PROCESS = False
-
-TEST_FORMAL_PROCESS = False
+VALID_TEST_PROCESS = True
 
 API_PROCESS = True
 
-# API地址和端口
 API_HOST = '0.0.0.0'
 
 API_PORT = 6000
+
+MAX_SCORE = 100
+
+MIN_SCORE = 0
+
+DEFAULT_SCORE = 10

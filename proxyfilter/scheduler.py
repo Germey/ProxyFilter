@@ -20,22 +20,12 @@ class Scheduler():
             except Exception as e:
                 print(e.args)
 
-    def test_formal(self, cycle=CYCLE):
+    def valid_test(self, cycle=CYCLE):
         while True:
-            print('Testing Formal')
+            print('Testing')
             try:
-                self.tester.test_formal()
+                self.tester.valid_test()
                 time.sleep(cycle)
-            except Exception as e:
-                print(e.args)
-
-    def test_temporary(self, cycle=CYCLE):
-        while True:
-            print('Testing Temporary')
-            try:
-                time.sleep(cycle / 2)
-                self.tester.test_temporary()
-                time.sleep(cycle / 2)
             except Exception as e:
                 print(e.args)
 
@@ -43,13 +33,9 @@ class Scheduler():
         app.run(host=API_HOST, port=API_PORT)
 
     def run(self):
-        if TEST_TEMPORARY_PROCESS:
-            test_temporary_process = Process(target=self.test_temporary)
-            test_temporary_process.start()
-
-        if TEST_FORMAL_PROCESS:
-            test_formal_process = Process(target=self.test_formal)
-            test_formal_process.start()
+        if VALID_TEST_PROCESS:
+            valid_test_process = Process(target=self.valid_test)
+            valid_test_process.start()
 
         if GET_PROXY_PROCESS:
             get_proxy_process = Process(target=self.get_proxy)
