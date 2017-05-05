@@ -1,6 +1,8 @@
 import requests
 from pyquery import PyQuery as pq
 
+from proxyfilter.db import RedisClient
+
 
 class ProxyMetaclass(type):
     def __new__(cls, name, bases, attrs):
@@ -15,15 +17,16 @@ class ProxyMetaclass(type):
 
 
 class ProxyGetter(object, metaclass=ProxyMetaclass):
-    base_headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
-        'Accept-Encoding': 'gzip, deflate, sdch',
-        'Accept-Language': 'zh-CN,zh;q=0.8'
-    }
+    def __init__(self):
+        self.base_headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
+            'Accept-Encoding': 'gzip, deflate, sdch',
+            'Accept-Language': 'zh-CN,zh;q=0.8'
+        }
+        self.conn = RedisClient(type='temporary')
 
     def get_page(self, url, options={}):
         headers = dict(self.base_headers, **options)
-        print('Getting', url)
         try:
             r = requests.get(url, headers=headers)
             print('Getting result', url, r.status_code)
@@ -44,7 +47,10 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
                 for tr in trs:
                     ip = tr.find('td:nth-child(1)').text()
                     port = tr.find('td:nth-child(2)').text()
-                    yield ':'.join([ip, port])
+                    yield {
+                        'scheme': 'http',
+                        'proxy': ':'.join([ip, port])
+                    }
 
     def crawl_proxy360(self):
         start_url = 'http://www.proxy360.cn/Region/China'
@@ -56,26 +62,31 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
             for line in lines:
                 ip = line.find('.tbBottomLine:nth-child(1)').text()
                 port = line.find('.tbBottomLine:nth-child(2)').text()
-                yield ':'.join([ip, port])
+                yield {
+                    'scheme': 'http',
+                    'proxy': ':'.join([ip, port])
+                }
 
-    def crawl_goubanjia(self):
-        start_url = 'http://www.goubanjia.com/free/gngn/index.shtml'
-        html = self.get_page(start_url)
-        if html:
-            doc = pq(html)
-            tds = doc('td.ip').items()
-            for td in tds:
-                td.find('p').remove()
-                yield td.text().replace(' ', '')
-
-    def crawl_haoip(self):
-        start_url = 'http://haoip.cc/tiqu.htm'
-        html = self.get_page(start_url)
-        if html:
-            doc = pq(html)
-            results = doc('.row .col-xs-12').html().split('<br/>')
-            for result in results:
-                if result: yield result.strip()
+    def crawl_goubanjia(self, page_count=5):
+        start_url = 'http://www.goubanjia.com/free/gngn/index{}.shtml'
+        urls = [start_url.format(page) for page in range(1, page_count + 1)]
+        for url in urls:
+            html = self.get_page(url)
+            if html:
+                doc = pq(html)
+                trs = doc('table.table tr')
+                for tr in trs.items():
+                    td = tr.find('td.ip')
+                    td.find('p').remove()
+                    proxy = td.text().replace(' ', '')
+                    scheme = tr.find('td:nth-child(3)').text()
+                    if ',' in scheme:
+                        scheme = scheme.split(',')[0]
+                    if scheme and proxy:
+                        yield {
+                            'scheme': scheme,
+                            'proxy': proxy
+                        }
 
     def run(self):
         functions = self.__CrawlFunc__
@@ -84,7 +95,8 @@ class ProxyGetter(object, metaclass=ProxyMetaclass):
             results = eval('getter.' + function + '()')
             print(results)
             for result in results:
-                print(result)
+                print('Getting Proxy', result)
+                self.conn.add(result.get('scheme'), result.get('proxy'))
 
 
 if __name__ == '__main__':
