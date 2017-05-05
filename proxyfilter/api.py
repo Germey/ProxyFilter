@@ -1,6 +1,8 @@
+import json
+
 from flask import Flask, g
 
-from .db import RedisClient
+from proxyfilter.db import RedisClient
 
 __all__ = ['app']
 
@@ -28,7 +30,7 @@ def get_proxy():
     Get a proxy
     """
     conn = get_conn()
-    return conn.random()
+    return json.dumps(conn.random())
 
 
 if __name__ == '__main__':

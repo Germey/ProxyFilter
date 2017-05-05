@@ -20,8 +20,6 @@ class RedisClient(object):
             scheme = random_key.decode('utf-8').split(':')[1]
         except IndexError:
             scheme = 'http'
-        print(scheme)
-        print(self._db.zrevrange(self._key(scheme), 0, 1))
         try:
             top_value = self._db.zrevrange(self._key(scheme), 0, 1)[0].decode('utf-8')
         except:
@@ -29,7 +27,6 @@ class RedisClient(object):
         top = self._db.zscore(self._key(scheme), top_value)
         half = top / 2
         results = self._db.zrevrangebyscore(self._key(scheme), max=top, min=half)
-        print(results)
         proxy = random.choice(results)
         return {
             'scheme': scheme,
@@ -40,6 +37,11 @@ class RedisClient(object):
         return self._db.zrange(self._key(scheme), 0, -1)
 
     def _key(self, scheme):
+        """
+        Get Key
+        :param scheme:
+        :return:
+        """
         return '{domain}:{scheme}'.format(domain=self.domain, scheme=scheme)
 
     def up(self, scheme, proxy):
