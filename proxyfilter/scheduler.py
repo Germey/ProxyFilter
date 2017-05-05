@@ -1,7 +1,5 @@
 import time
-
 from multiprocessing import Process
-
 from proxyfilter.api import app
 from proxyfilter.config import *
 from proxyfilter.getter import ProxyGetter
@@ -33,15 +31,14 @@ class Scheduler():
 
     def test_temporary(self, cycle=CYCLE):
         while True:
-            print('Testing Formal')
+            print('Testing Temporary')
             try:
                 self.tester.test_temporary()
                 time.sleep(cycle)
             except Exception as e:
                 print(e.args)
 
-    @staticmethod
-    def api():
+    def api(self):
         app.run(host=API_HOST, port=API_PORT)
 
     def run(self):
@@ -56,3 +53,7 @@ class Scheduler():
         if GET_PROXY_PROCESS:
             get_proxy_process = Process(target=self.get_proxy)
             get_proxy_process.start()
+
+        if API_PROCESS:
+            api_process = Process(target=self.api)
+            api_process.start()
