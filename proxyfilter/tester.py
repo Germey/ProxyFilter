@@ -16,6 +16,7 @@ class ValidTester():
         proxy = proxies.get(scheme).replace(scheme + '://', '')
         print('Get Exception of', scheme, proxy, 'Down it')
         self.conn.down(scheme, proxy)
+
     
     def valid_test(self):
         keys = self.conn.keys()
@@ -25,8 +26,9 @@ class ValidTester():
             proxies = self.conn.all(scheme)
             for proxy in proxies:
                 proxy = proxy.decode('utf-8').strip()
-                queue.append(grequests.post(TEST_URL, proxies={
-                    scheme: scheme + '://' + proxy
+                queue.append(grequests.get(TEST_URL, proxies={
+                    'http': 'http' + '://' + proxy,
+                    'https': 'https' + '://' + proxy
                 }, data={
                     'proxy': proxy
                 }))
@@ -34,17 +36,10 @@ class ValidTester():
             for response in responses:
                 if not response is None:
                     if response.status_code == 200:
-                        result = json.loads(response.text)
-                        origin = result.get('origin')
-                        proxy = result.get('form').get('proxy')
-                        if origin != proxy.split(':')[0]:
-                            print('Invalid Proxy', proxy, 'Down', scheme, proxy)
-                            self.conn.down(scheme, proxy)
-                        else:
-                            print('Valid Proxy', scheme, proxy)
-                            self.conn.up(scheme, proxy)
-
+                        proxy = parse_qs(response.request.body).get('proxy')[0]
+                        print('Valid Proxy', proxy)
+                        self.conn.up(scheme, proxy)
                     else:
                         proxy = parse_qs(response.request.body).get('proxy')[0]
-                        print('Status Code Not Valid, Invalid Proxy', proxy, 'Down', scheme, proxy)
+                        print('InValid Proxy', proxy)
                         self.conn.down(scheme, proxy)

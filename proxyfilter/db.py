@@ -29,11 +29,12 @@ class RedisClient(object):
         except:
             return None
         top = self._db.zscore(self._key(scheme), top_value)
-        half = top / 2
-        results = self._db.zrevrangebyscore(self._key(scheme), max=top, min=half)
+        results = self._db.zrevrangebyscore(self._key(scheme), max=top, min=top)
         proxy = random.choice(results)
+        score = self._db.zscore(self._key(scheme), proxy)
         return {
             'scheme': scheme,
+            'score': score,
             'proxy': proxy.decode('utf-8').strip()
         }
 
@@ -61,7 +62,7 @@ class RedisClient(object):
         :return:
         """
         score = self._db.zscore(self._key(scheme), proxy)
-        self._db.zincrby(self._key(scheme), proxy, 0 if score >= MAX_SCORE else 1)
+        self._db.zincrby(self._key(scheme), proxy, MAX_SCORE - score)
 
     def down(self, scheme, proxy):
         """
