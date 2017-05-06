@@ -15,6 +15,10 @@ class RedisClient(object):
         return self._db.keys(self._key('*'))
 
     def random(self):
+        """
+        Get Random Proxy
+        :return:
+        """
         random_key = random.choice(self._db.keys(self.domain + ':*'))
         try:
             scheme = random_key.decode('utf-8').split(':')[1]
@@ -34,6 +38,11 @@ class RedisClient(object):
         }
 
     def all(self, scheme):
+        """
+        Get All Proxies By Scheme
+        :param scheme:
+        :return:
+        """
         return self._db.zrange(self._key(scheme), 0, -1)
 
     def _key(self, scheme):

@@ -8,9 +8,11 @@ PASSWORD = 'foobared'
 
 TEST_URL = 'http://httpbin.org/post'
 
-CYCLE = 40
+GET_PROXY_CYCLE = 600
 
-GET_PROXY_PROCESS = True
+VALID_TEST_CYCLE = 100
+
+GET_PROXY_PROCESS = False
 
 VALID_TEST_PROCESS = True
 

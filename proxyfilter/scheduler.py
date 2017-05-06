@@ -11,7 +11,7 @@ class Scheduler():
         self.getter = ProxyGetter()
         self.tester = ValidTester()
 
-    def get_proxy(self, cycle=CYCLE):
+    def get_proxy(self, cycle=GET_PROXY_CYCLE):
         while True:
             print('Getting Proxies')
             try:
@@ -20,7 +20,7 @@ class Scheduler():
             except Exception as e:
                 print(e.args)
 
-    def valid_test(self, cycle=CYCLE):
+    def valid_test(self, cycle=VALID_TEST_CYCLE):
         while True:
             print('Testing')
             try:
