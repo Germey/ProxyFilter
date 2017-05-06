@@ -43,6 +43,7 @@ class ValidTester():
                         else:
                             print('Valid Proxy', scheme, proxy)
                             self.conn.up(scheme, proxy)
+
                     else:
                         proxy = parse_qs(response.request.body).get('proxy')[0]
                         print('Status Code Not Valid, Invalid Proxy', proxy, 'Down', scheme, proxy)
